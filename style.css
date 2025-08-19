@@ -1,0 +1,40 @@
+
+body {
+  font-family: "Prompt", sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f2f7f2;
+  color: #333;
+}
+
+header {
+  background: #228B22;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+main {
+  padding: 20px;
+}
+
+button {
+  background: #228B22;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #006400;
+}
+
+footer {
+  margin-top: 30px;
+  text-align: center;
+  padding: 10px;
+  background: #ddd;
+}
