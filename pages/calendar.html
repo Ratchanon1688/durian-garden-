@@ -2,13 +2,145 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ปฏิทิน - ระบบจัดการสวนทุเรียน</title>
+  <title>ปฏิทินงาน | สวนทุเรียน</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="../assets/css/style.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="p-4">
-  <h2>📅 ปฏิทินกิจกรรมสวน</h2>
-  <div class="alert alert-info mt-3">ฟีเจอร์นี้จะแสดงปฏิทิน + งานที่ต้องทำ</div>
+<body onload="guard(); render();">
+<nav class="navbar navbar-dark bg-success">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="dashboard.html">← แดชบอร์ด</a>
+    <span class="navbar-text">ปฏิทินงาน</span>
+  </div>
+</nav>
+
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>รายการงาน</h4>
+    <button class="btn btn-success" onclick="openForm()"><i class="fa fa-plus"></i> เพิ่มงาน</button>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-5">
+      <div class="card p-3 shadow-sm">
+        <h6>ซีซัน (ตัวอย่าง)</h6>
+        <ul class="small mb-0">
+          <li>พ.ย.–ธ.ค.: แตกใบอ่อน/บำรุงต้น</li>
+          <li>ม.ค.–ก.พ.: ช่วงออกดอก</li>
+          <li>มี.ค.–เม.ย.: ติดผล/ขยายผล</li>
+          <li>พ.ค.–ก.ค.: ขุนเนื้อ/เก็บเกี่ยว</li>
+          <li>ส.ค.–ต.ค.: พักฟื้น/ตัดแต่ง</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-7">
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead><tr><th>วันที่</th><th>เวลา</th><th>งาน</th><th>หมายเหตุ</th><th class="text-end">จัดการ</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="taskModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <form onsubmit="saveTask(event)">
+      <div class="modal-header">
+        <h5 class="modal-title" id="taskTitle">เพิ่มงาน</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="tid">
+        <div class="mb-2">
+          <label class="form-label">ชื่อกิจกรรม</label>
+          <input id="ttitle" class="form-control" required>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">วันที่</label>
+          <input id="tdate" type="date" class="form-control" required>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">เวลา</label>
+          <input id="ttime" type="time" class="form-control" value="06:00">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">หมายเหตุ</label>
+          <input id="tnote" class="form-control">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+        <button class="btn btn-success" type="submit">บันทึก</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+
+<div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ===== include app.js (ย่อ) ===== */
+</script>
+<script>
+function render(){
+  const rows = document.getElementById('rows');
+  const tasks = LS.get("tasks", []).sort((a,b)=> (a.date+a.time).localeCompare(b.date+b.time));
+  rows.innerHTML = "";
+  tasks.forEach(t=>{
+    rows.innerHTML += `
+      <tr>
+        <td>${t.date}</td>
+        <td>${t.time||"-"}</td>
+        <td>${t.title}</td>
+        <td>${t.note||""}</td>
+        <td class="text-end">
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary" onclick='openForm("${t.id}")'><i class="fa fa-pen"></i></button>
+            <button class="btn btn-outline-danger" onclick='delTask("${t.id}")'><i class="fa fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>`;
+  });
+}
+function openForm(id){
+  const t = LS.get("tasks", []).find(x=>x.id===id);
+  document.getElementById('taskTitle').innerText = id?"แก้ไขงาน":"เพิ่มงาน";
+  document.getElementById('tid').value = t?.id || "";
+  document.getElementById('ttitle').value = t?.title || "";
+  document.getElementById('tdate').value = t?.date || new Date().toISOString().slice(0,10);
+  document.getElementById('ttime').value = t?.time || "06:00";
+  document.getElementById('tnote').value = t?.note || "";
+  new bootstrap.Modal(document.getElementById('taskModal')).show();
+}
+function saveTask(e){
+  e.preventDefault();
+  const t = {
+    id: document.getElementById('tid').value || uid("task"),
+    title: document.getElementById('ttitle').value.trim(),
+    date: document.getElementById('tdate').value,
+    time: document.getElementById('ttime').value,
+    note: document.getElementById('tnote').value.trim()
+  };
+  let tasks = LS.get("tasks", []);
+  const i = tasks.findIndex(x=>x.id===t.id);
+  if(i>=0) tasks[i]=t; else tasks.push(t);
+  LS.set("tasks", tasks);
+  bootstrap.Modal.getInstance(document.getElementById('taskModal')).hide();
+  logEvent("task.save", `บันทึกงาน: ${t.title} @ ${t.date} ${t.time}`);
+  render();
+}
+function delTask(id){
+  if(!confirm("ลบงานนี้?")) return;
+  let tasks = LS.get("tasks", []);
+  const t = tasks.find(x=>x.id===id);
+  tasks = tasks.filter(x=>x.id!==id);
+  LS.set("tasks", tasks);
+  logEvent("task.delete", `ลบงาน: ${t?.title||id}`);
+  render();
+}
+</script>
 </body>
 </html>
