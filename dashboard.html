@@ -2,46 +2,92 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>แดชบอร์ด - ระบบจัดการสวนทุเรียน</title>
+  <title>แดชบอร์ด | ระบบจัดการสวนทุเรียน</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="assets/css/style.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
-<body>
-  <div class="d-flex">
-    <!-- Sidebar -->
-    <div class="bg-dark text-white p-3 vh-100" style="width: 250px;">
-      <h4 class="mb-4">🌳 สวนทุเรียน</h4>
-      <ul class="nav flex-column">
-        <li class="nav-item mb-2"><a href="dashboard.html" class="nav-link text-white"><i class="bi bi-speedometer2"></i> แดชบอร์ด</a></li>
-        <li class="nav-item mb-2"><a href="pages/calendar.html" class="nav-link text-white"><i class="bi bi-calendar"></i> ปฏิทิน</a></li>
-        <li class="nav-item mb-2"><a href="pages/trees.html" class="nav-link text-white"><i class="bi bi-tree"></i> จัดการต้นไม้</a></li>
-        <li class="nav-item mb-2"><a href="pages/analytics.html" class="nav-link text-white"><i class="bi bi-bar-chart"></i> วิเคราะห์</a></li>
-        <li class="nav-item mb-2"><a href="pages/watering.html" class="nav-link text-white"><i class="bi bi-droplet"></i> ระบบรดน้ำ</a></li>
-        <li class="nav-item mb-2"><a href="pages/expenses.html" class="nav-link text-white"><i class="bi bi-cash"></i> บันทึกรายจ่าย</a></li>
-        <li class="nav-item mb-2"><a href="pages/settings.html" class="nav-link text-white"><i class="bi bi-gear"></i> ตั้งค่า</a></li>
-      </ul>
-    </div>
+<body class="bg-light">
 
-    <!-- Main Content -->
-    <div class="p-4 flex-grow-1">
-      <h2 class="mb-4">แดชบอร์ด</h2>
-      <div class="row g-3">
-        <div class="col-md-4">
-          <div class="card shadow p-3">
-            <h5>จำนวนต้นไม้ทั้งหมด</h5>
-            <p class="display-6">120</p>
-          </div>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">🌳 สวนทุเรียน</a>
+      <button class="btn btn-outline-light" onclick="logout()">ออกจากระบบ</button>
+    </div>
+  </nav>
+
+  <div class="container my-5">
+    <h2 class="mb-4">📊 แดชบอร์ดหลัก</h2>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100 text-center p-3">
+          <i class="fas fa-tree fa-3x text-success mb-3"></i>
+          <h5>จัดการต้นไม้</h5>
+          <p>ข้อมูลต้นทุเรียน แบ่งโซน A, B, C พร้อม QR Code</p>
+          <a href="trees.html" class="btn btn-outline-success">เปิด</a>
         </div>
-        <div class="col-md-4">
-          <div class="card shadow p-3">
-            <h5>ค่าใช้จ่ายเดือนนี้</h5>
-            <p class="display-6">15,000 ฿</p>
-          </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100 text-center p-3">
+          <i class="fas fa-calendar-alt fa-3x text-primary mb-3"></i>
+          <h5>ปฏิทินอัจฉริยะ</h5>
+          <p>บันทึกกิจกรรม แจ้งเตือนงาน และวางแผนฤดูกาล</p>
+          <a href="calendar.html" class="btn btn-outline-primary">เปิด</a>
         </div>
-        <div class="col-md-4">
-          <div class="card shadow p-3">
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100 text-center p-3">
+          <i class="fas fa-tint fa-3x text-info mb-3"></i>
+          <h5>ระบบรดน้ำ</h5>
+          <p>ควบคุมเปิด-ปิดน้ำอัตโนมัติ จำลองการทำงาน</p>
+          <a href="watering.html" class="btn btn-outline-info">เปิด</a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100 text-center p-3">
+          <i class="fas fa-boxes fa-3x text-warning mb-3"></i>
+          <h5>คลังวัตถุดิบ</h5>
+          <p>จัดการปุ๋ย ยา และอุปกรณ์ พร้อมแจ้งเตือนสต็อก</p>
+          <a href="inventory.html" class="btn btn-outline-warning">เปิด</a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100 text-center p-3">
+          <i class="fas fa-chart-line fa-3x text-danger mb-3"></i>
+          <h5>วิเคราะห์ผลผลิต</h5>
+          <p>คำนวณต้นทุน กำไร และเปรียบเทียบย้อนหลัง</p>
+          <a href="analysis.html" class="btn btn-outline-danger">เปิด</a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100 text-center p-3">
+          <i class="fas fa-bell fa-3x text-secondary mb-3"></i>
+          <h5>ศูนย์แจ้งเตือน</h5>
+          <p>ติดตามการแจ้งเตือนอัจฉริยะ และ Activity Log</p>
+          <a href="notifications.html" class="btn btn-outline-secondary">เปิด</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if(sessionStorage.getItem("loggedIn") !== "true"){
+      window.location.href = "login.html";
+    }
+    function logout(){
+      sessionStorage.removeItem("loggedIn");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>          <div class="card shadow p-3">
             <h5>การรดน้ำวันนี้</h5>
             <p class="display-6 text-success">✅ เสร็จแล้ว</p>
           </div>
