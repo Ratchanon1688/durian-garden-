@@ -2,26 +2,157 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>จัดการต้นไม้</title>
+  <title>จัดการต้นไม้ | สวนทุเรียน</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="../assets/css/style.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <!-- app.css -->
+  <link rel="stylesheet" href="data:text/css,">
 </head>
-<body class="p-4">
-  <h2>🌳 จัดการต้นไม้</h2>
-  <table class="table table-striped mt-3">
-    <thead>
-      <tr>
-        <th>รหัสต้น</th>
-        <th>โซน</th>
-        <th>อายุ</th>
-        <th>สถานะ</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>T001</td><td>A</td><td>3 ปี</td><td>ปกติ</td></tr>
-      <tr><td>T002</td><td>B</td><td>2 ปี</td><td>ดูแลพิเศษ</td></tr>
-    </tbody>
-  </table>
+<body onload="guard(); render();">
+<nav class="navbar navbar-dark bg-success">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="dashboard.html">← แดชบอร์ด</a>
+    <span class="navbar-text">จัดการต้นไม้</span>
+  </div>
+</nav>
+
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>รายการต้นไม้</h4>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#treeModal">
+      <i class="fa fa-plus"></i> เพิ่มต้นไม้
+    </button>
+  </div>
+
+  <div class="input-group mb-3">
+    <span class="input-group-text"><i class="fa fa-search"></i></span>
+    <input id="q" class="form-control" placeholder="ค้นหาโค้ด/โซน/หมายเหตุ" oninput="render()">
+  </div>
+
+  <div id="list" class="row g-3"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="treeModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form onsubmit="saveTree(event)">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">เพิ่มต้นไม้</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="tid">
+          <div class="mb-2">
+            <label class="form-label">โค้ดต้นไม้ (เช่น A-01)</label>
+            <input id="tcode" class="form-control" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">โซน</label>
+            <input id="tzone" class="form-control" placeholder="A/B/C..." required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">อายุ (เดือน)</label>
+            <input id="tage" type="number" class="form-control" min="0" value="0">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">หมายเหตุ</label>
+            <textarea id="tnote" class="form-control"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+          <button class="btn btn-success" type="submit">บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- app.js -->
+<script>
+/* ===== include app.js (ย่อ) ===== */
+</script>
+
+<script>
+let editId = null;
+
+function render(){
+  const q = (document.getElementById('q').value||"").toLowerCase();
+  const trees = LS.get("trees", []);
+  const list = document.getElementById('list');
+  list.innerHTML = "";
+  trees
+    .filter(t => (t.code+t.zone+(t.note||"")).toLowerCase().includes(q))
+    .forEach(t=>{
+      const col = document.createElement('div');
+      col.className = "col-12 col-md-6 col-lg-4";
+      col.innerHTML = `
+        <div class="card shadow-sm card-hover h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <h5 class="card-title">${t.code}</h5>
+              <span class="badge bg-success">${t.zone}</span>
+            </div>
+            <p class="text-muted mb-1">อายุ: ${t.ageMonth} เดือน</p>
+            <p class="mb-2">${t.note||""}</p>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm" onclick='openEdit("${t.id}")'>
+                <i class="fa fa-pen"></i> แก้ไข
+              </button>
+              <button class="btn btn-outline-danger btn-sm" onclick='delTree("${t.id}")'>
+                <i class="fa fa-trash"></i> ลบ
+              </button>
+            </div>
+          </div>
+        </div>`;
+      list.appendChild(col);
+    });
+}
+
+function openEdit(id){
+  const t = LS.get("trees", []).find(x=>x.id===id);
+  if(!t) return;
+  editId = id;
+  document.getElementById('modalTitle').innerText = "แก้ไขต้นไม้";
+  document.getElementById('tid').value = id;
+  document.getElementById('tcode').value = t.code;
+  document.getElementById('tzone').value = t.zone;
+  document.getElementById('tage').value = t.ageMonth;
+  document.getElementById('tnote').value = t.note||"";
+  new bootstrap.Modal(document.getElementById('treeModal')).show();
+}
+
+function saveTree(e){
+  e.preventDefault();
+  const obj = {
+    id: document.getElementById('tid').value || uid('tree'),
+    code: document.getElementById('tcode').value.trim(),
+    zone: document.getElementById('tzone').value.trim(),
+    ageMonth: num(document.getElementById('tage').value),
+    note: document.getElementById('tnote').value.trim()
+  };
+  let trees = LS.get("trees", []);
+  const i = trees.findIndex(x=>x.id===obj.id);
+  if(i>=0) trees[i]=obj; else trees.push(obj);
+  LS.set("trees", trees);
+  logEvent("tree.save", `บันทึกต้นไม้ ${obj.code}`, {id:obj.id});
+  bootstrap.Modal.getInstance(document.getElementById('treeModal')).hide();
+  render();
+}
+
+function delTree(id){
+  if(!confirm("ลบรายการนี้ใช่ไหม?")) return;
+  let trees = LS.get("trees", []);
+  const t = trees.find(x=>x.id===id);
+  trees = trees.filter(x=>x.id!==id);
+  LS.set("trees", trees);
+  logEvent("tree.delete", `ลบต้นไม้ ${t?.code||id}`, {id});
+  render();
+}
+</script>
 </body>
 </html>
